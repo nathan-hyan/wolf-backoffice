@@ -42,7 +42,7 @@ function ProductCommentsModal({
       </Modal.Header>
       <Modal.Body>
         {comments && comments.length > 0 ? comments.map((comment) => (
-          <p className="border-bottom pb-3 ">
+          <p key={comment._id} className="border-bottom pb-3 ">
             <span className="fw-bold">
               {comment.body}
             </span>

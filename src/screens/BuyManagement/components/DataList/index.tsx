@@ -53,7 +53,7 @@ function DataList({
                 className={styles.checkBox}
                 id={id}
                 value="name"
-                checked={finished}
+                defaultChecked={finished}
                 onClick={() => toggleFinished(id || '', finished)}
               />
             )}

@@ -19,7 +19,7 @@ function DropdownInput({
       <Form.Label>{label}</Form.Label>
 
       <Form.Select aria-label="Default select example" onChange={onChange} name={name} value={value}>
-        {options.map((item, index) => <option value={index}>{item}</option>)}
+        {options.map((item, index) => <option key={item} value={index}>{item}</option>)}
       </Form.Select>
     </Form.Group>
   );

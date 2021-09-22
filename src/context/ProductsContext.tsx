@@ -2,7 +2,7 @@
 import LoadingSpinner from 'components/LoadingSpinner';
 import { Product } from 'interfaces/Products';
 import {
-  createContext, ReactNode, useContext, useState,
+  createContext, ReactNode, useCallback, useContext, useState,
 } from 'react';
 import { notify } from 'react-notify-toast';
 import {
@@ -38,22 +38,25 @@ function ProductsProvider({
   const [loadingText, setLoadingText] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
 
-  const gatherProducts = () => {
-    if (isLoggedIn) {
-      setLoadingText('Obteniendo productos');
-      getAllProducts()
-        .then(({ data }) => {
-          if (data) {
-            setProducts(data.response);
+  const gatherProducts = useCallback(
+    () => {
+      if (isLoggedIn) {
+        setLoadingText('Obteniendo productos');
+        getAllProducts()
+          .then(({ data }) => {
+            if (data) {
+              setProducts(data.response);
+              setLoadingText('');
+            }
+          })
+          .catch(() => {
+            notify.show('Ocurrió un error trayendo los datos');
             setLoadingText('');
-          }
-        })
-        .catch((err) => {
-          notify.show('Ocurrió un error trayendo los datos');
-          setLoadingText('');
-        });
-    }
-  };
+          });
+      }
+    },
+    [isLoggedIn],
+  );
 
   const addProductToList = (product: Product) => {
     setLoadingText('Agregando producto');

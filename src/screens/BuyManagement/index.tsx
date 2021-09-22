@@ -2,8 +2,9 @@ import ContentContainer from 'components/ContentContainer';
 import CustomPagination from 'components/CustomPagination';
 import LoadingSpinner from 'components/LoadingSpinner';
 import { Purchase } from 'interfaces/Purchase';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
+import { notify } from 'react-notify-toast';
 import { getAllSells, toggleFinished } from 'services/sells';
 import DataList from './components/DataList';
 
@@ -12,9 +13,10 @@ function Management() {
   const [fullData, setFullData] = useState<Purchase[]>([]);
   const [loadingText, setLoadingText] = useState('');
 
-  const handlePageChange = (newItems: Purchase[]) => {
+  const handlePageChange = useCallback((newItems: Purchase[]) => {
     setdisplayData(newItems);
-  };
+  }, []);
+
   const handleToggleFinished = (id: string, finished: boolean) => {
     setLoadingText(finished ? 'Restaurando Venta' : 'Finalizando Venta');
     toggleFinished(id).then(() => {
@@ -24,9 +26,11 @@ function Management() {
             response.data.data.sort((a: Purchase) => (a.finished ? 1 : -1)),
           );
           setLoadingText('');
+        } else {
+          notify.show('Ocurrió un error, por favor reintente', 'error');
         }
-      });
-    });
+      }).catch((err) => notify.show(err.message || '', 'error'));
+    }).catch((err) => notify.show(err.message || '', 'error'));
   };
 
   useEffect(() => {
@@ -40,6 +44,7 @@ function Management() {
       }
     });
   }, []);
+
   return (
     <>
       {!!loadingText && <LoadingSpinner loadingText={loadingText} />}
@@ -56,6 +61,7 @@ function Management() {
           />
           {displayData.map((data) => (
             <DataList
+              key={data._id}
               name={data.userInfo.name}
               quantity={String(data.products.length)}
               total={String(data.amount)}

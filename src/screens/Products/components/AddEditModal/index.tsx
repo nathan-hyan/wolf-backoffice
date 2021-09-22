@@ -11,7 +11,7 @@ import FileUploader from 'components/FileUploader';
 import { ProductsContext } from 'context/ProductsContext';
 import { Product } from 'interfaces/Products';
 import {
-  ChangeEvent, FormEvent, useContext, useEffect, useState,
+  ChangeEvent, FormEvent, useCallback, useContext, useEffect, useState,
 } from 'react';
 import {
   Form, Modal,
@@ -22,7 +22,6 @@ import { getProduct } from 'services/products';
 import styles from './styles.module.scss';
 
 interface StateProps extends Product {
-  categoryString: number;
   imageString: string;
   [key: string]: any;
 }
@@ -34,12 +33,24 @@ interface Props {
 }
 
 const EMPTY_STATE = {
-  name: '',
   price: 0,
   stock: 0,
-  description: '',
-  categoryString: 0,
+  category: 0,
+  name: '',
+  image: [],
   imageString: '',
+  comments: [],
+  description: '',
+  discount: 0,
+  rating: {
+    oneStar: 0,
+    twoStar: 0,
+    threeStar: 0,
+    fourStar: 0,
+    fiveStar: 0,
+    usersRating: 0,
+    total: 0,
+  },
 };
 
 function AddEditModal({ modalShow, toggleClose, id }: Props) {
@@ -58,7 +69,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
     const { name, value } = e.target;
 
     if (name === 'categoryString') {
-      setState({ ...state, categoryString: Number(value) });
+      setState({ ...state, category: Number(value) });
     }
     setState({ ...state, [name]: value });
   };
@@ -66,7 +77,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {
-      categoryString, imageString, name, price, stock, description,
+      imageString, name, price, stock, description, category,
     } = state;
     const newImage = imageString.split(',');
     const newProduct = {
@@ -74,7 +85,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
       price,
       stock,
       description,
-      category: categoryString,
+      category,
       image: newImage,
     };
 
@@ -87,30 +98,39 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
     }
   };
 
+  const getSingleItem = useCallback(
+    () => {
+      setIsDataLoading(true);
+      if (typeof id === 'string' && id !== '') {
+        getProduct(id || '').then(({ data }) => {
+          setIsDataLoading(false);
+          if (data) {
+            const { category, image } = data.response;
+
+            if (category && image) {
+              const imageString = image.join(',');
+
+              setState({
+                ...data.response,
+                categoryString: category,
+                imageString,
+              });
+            }
+          }
+        });
+      } else {
+        setIsDataLoading(false);
+      }
+    },
+    [id],
+  );
+
   useEffect(() => {
     if (modalShow) {
       setState(EMPTY_STATE);
     }
-    if (typeof id === 'string' && id !== '') {
-      setIsDataLoading(true);
-      getProduct(id).then(({ data }) => {
-        setIsDataLoading(false);
-        if (data) {
-          const { category, image } = data.response;
-
-          if (category && image) {
-            const imageString = image.join(',');
-
-            setState({
-              ...data.response,
-              categoryString: category,
-              imageString,
-            });
-          }
-        }
-      });
-    }
-  }, [id, modalShow]);
+    getSingleItem();
+  }, [getSingleItem, modalShow]);
 
   const handleFileUploaded = (files?: string[]) => {
     if (files) {
