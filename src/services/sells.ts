@@ -10,4 +10,4 @@ export interface APIResponse {
 
 export const getAllSells = () => api.get<{data:Purchase[]}>(`${SELLS_PATH}/get`);
 
-export const toggleFinished = (id: string) => api.put<APIResponse>(`${SELLS_PATH}/toggleFinished/${id}`);
+export const toggleFinished = (id: string) => api.put<APIResponse>(`${SELLS_PATH}/toggleFinished/${id}`, {});
