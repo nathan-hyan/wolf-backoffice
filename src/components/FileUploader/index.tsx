@@ -24,7 +24,8 @@ function FileUploader({ onFileUploaded, setGlobalIsLoading }: Props) {
     setGlobalIsLoading(false);
     if (hasError) {
       alert(
-        error || 'Ocurrió un error tratando de cargar las imágenes. Reintente por favor',
+        error
+          || 'Ocurrió un error tratando de cargar las imágenes. Reintente por favor',
       );
     }
   };
@@ -55,7 +56,10 @@ function FileUploader({ onFileUploaded, setGlobalIsLoading }: Props) {
         });
       setMultipleImages(false);
     } catch (err) {
-      handleLoading(true, String(err) || 'Ha ocurrido un error, reintente por favor.');
+      handleLoading(
+        true,
+        String(err) || 'Ha ocurrido un error, reintente por favor.',
+      );
       event.currentTarget.value = '';
       setMultipleImages(false);
     }
