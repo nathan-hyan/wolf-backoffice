@@ -7,7 +7,23 @@ export interface APIResponse {
   success: boolean;
   message: string;
 }
+export interface SellsResponse {
+  success: boolean;
+  data: Purchase[];
+  additionalInfo: AdditionalInfo;
+}
 
-export const getAllSells = () => api.get<{data:Purchase[]}>(`${SELLS_PATH}/get`);
+export interface AdditionalInfo {
+  monthPurchases: number;
+  totalPurchases: number;
+  monthAmount: number;
+  totalAmount: number;
+}
+export interface UserInfo {
+  name: string;
+  whatsApp: number;
+}
+
+export const getAllSells = () => api.get<SellsResponse>(`${SELLS_PATH}/get`);
 
 export const toggleFinished = (id: string) => api.put<APIResponse>(`${SELLS_PATH}/toggleFinished/${id}`, {});
