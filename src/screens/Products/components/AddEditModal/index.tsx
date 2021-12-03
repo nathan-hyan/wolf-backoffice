@@ -11,14 +11,18 @@ import FileUploader from 'components/FileUploader';
 import { ProductsContext } from 'context/ProductsContext';
 import { Product } from 'interfaces/Products';
 import {
-  ChangeEvent, FormEvent, useCallback, useContext, useEffect, useState,
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
-import {
-  Form, Modal,
-} from 'react-bootstrap';
+import { Form, Modal } from 'react-bootstrap';
 import { ADD_ITEM_FORM, SORTING_LABELS } from 'screens/Products/constants';
 import { getProduct } from 'services/products';
 
+import { EMPTY_STATE } from './constants';
 import styles from './styles.module.scss';
 
 interface StateProps extends Product {
@@ -31,27 +35,6 @@ interface Props {
   toggleClose: () => void;
   id?: string;
 }
-
-const EMPTY_STATE = {
-  price: 0,
-  stock: 0,
-  category: 0,
-  name: '',
-  image: [],
-  imageString: '',
-  comments: [],
-  description: '',
-  discount: 0,
-  rating: {
-    oneStar: 0,
-    twoStar: 0,
-    threeStar: 0,
-    fourStar: 0,
-    fiveStar: 0,
-    usersRating: 0,
-    total: 0,
-  },
-};
 
 function AddEditModal({ modalShow, toggleClose, id }: Props) {
   const { addProductToList, editProductFromList } = useContext(ProductsContext);
@@ -98,32 +81,25 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
     }
   };
 
-  const getSingleItem = useCallback(
-    () => {
-      setIsDataLoading(true);
-      if (typeof id === 'string' && id !== '') {
-        getProduct(id || '').then(({ data }) => {
-          setIsDataLoading(false);
-          if (data) {
-            const { category, image } = data.response;
-
-            if (category && image) {
-              const imageString = image.join(',');
-
-              setState({
-                ...data.response,
-                categoryString: category,
-                imageString,
-              });
-            }
-          }
-        });
-      } else {
+  const getSingleItem = useCallback(() => {
+    setIsDataLoading(true);
+    if (typeof id === 'string' && id !== '') {
+      getProduct(id || '').then(({ data }) => {
         setIsDataLoading(false);
-      }
-    },
-    [id],
-  );
+        if (data) {
+          const { category, image } = data.response;
+
+          setState({
+            ...data.response,
+            categoryString: category ?? '',
+            imageString: image ? image.join(',') : '',
+          });
+        }
+      });
+    } else {
+      setIsDataLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (modalShow) {
@@ -145,11 +121,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
     }
   };
 
-  const displayTitle = () => (typeof id === 'string' ? (
-    'Editar producto'
-  ) : (
-    'Agregar producto'
-  ));
+  const displayTitle = () => (typeof id === 'string' ? 'Editar producto' : 'Agregar producto');
 
   return (
     <Modal
@@ -170,7 +142,9 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
                 />
                 <span> Cargando datos...</span>
               </>
-            ) : displayTitle()}
+            ) : (
+              displayTitle()
+            )}
           </Modal.Title>
         </Modal.Header>
         {isDataLoading ? (
