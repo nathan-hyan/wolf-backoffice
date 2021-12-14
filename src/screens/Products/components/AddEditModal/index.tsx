@@ -58,6 +58,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [state, setState] = useState<StateProps>(EMPTY_STATE);
+  const CATEGORY_STRING = 'categoryString';
 
   const setGlobalIsLoading = (newState: boolean) => {
     setIsImageLoading(newState);
@@ -68,10 +69,15 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
   ) => {
     const { name, value } = e.target;
 
-    if (name === 'categoryString') {
-      setState({ ...state, category: Number(value) });
+    if (name === CATEGORY_STRING) {
+      setState((prevState) => ({
+        ...prevState,
+        category: Number(value),
+        [CATEGORY_STRING]: value,
+      }));
+    } else {
+      setState({ ...state, [name]: value });
     }
-    setState({ ...state, [name]: value });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -189,7 +195,7 @@ function AddEditModal({ modalShow, toggleClose, id }: Props) {
               />
             ))}
             <DropdownInput
-              name="categoryString"
+              name={CATEGORY_STRING}
               label="Categorias"
               options={SORTING_LABELS}
               onChange={handleChange}
